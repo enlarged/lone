@@ -3,7 +3,7 @@
 A cutting-edge, open-source self-bot built with Discord.js, offering unique features to enhance your Discord experience:
 
 - **Built-in Paginator**: Easily browse long lists or content.
-- **Xray Integration**: Reveal hidden details and elements.
+- **Xray Integration**: Relay messages from 1 guild to another
 - **Social Media Reposter**: Automatically repost content from popular social media platforms.
 
 ### Quick Setup Guide
