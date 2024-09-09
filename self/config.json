@@ -1,0 +1,7 @@
+{
+    "developers": "your_userID",
+    "token": "your_token",
+    "webhook": "webhook_for_xray",
+    "bot": "your_bot_token",
+    "prefix": "your_prefix"
+}
