@@ -1,7 +1,9 @@
 {
-    "developers": "your_userID",
-    "token": "your_token",
+    "developers": "your_user_id",
+    "token": "user_token_here",
     "webhook": "webhook_for_xray",
-    "bot": "your_bot_token",
-    "prefix": "your_prefix"
+    "bot": "bot_token",
+    "prefix": "your_prefix",
+    "color": "#36393f",
+    "lastfm": "your_lastfm_api_key"
 }
