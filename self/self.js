@@ -15,7 +15,6 @@ const pack_txt = './tools/txt/pack.txt';
 session.developers = config.developers;
 session.token = config.token;
 session.lastfm = config.lastfm;
-session.color = config.color;
 session.embed = config.embed;
 session.webhook = config.webhook;
 session.bot = config.bot;
