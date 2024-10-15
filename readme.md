@@ -22,7 +22,12 @@ A cutting-edge, open-source self-bot built with Discord.js, offering unique feat
      npm install $(cat npm.txt | xargs)
      ```
 
-3. **Run the Self-Bot**  
+3. **Enter worker tokens**
+- Open the tools directory
+-  Enter the "txt" folder
+- Within that folder you'll find a file called "tokens.txt" enter your user tokens there
+
+4. **Run the Self Bot**  
    - In your terminal, navigate to the directory containing the `self.js` file.
    - Execute:
      ```bash
