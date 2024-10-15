@@ -4,6 +4,5 @@
     "webhook": "webhook_for_xray",
     "bot": "bot_token",
     "prefix": "your_prefix",
-    "color": "#36393f",
     "lastfm": "your_lastfm_api_key"
 }
