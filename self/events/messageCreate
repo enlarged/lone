@@ -1,0 +1,87 @@
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+
+const autoreact_db = path.join(__dirname, '../tools/db/autoreact.json');
+const mock_db = path.join(__dirname, '../tools/db/mock.json');
+const xray_db = path.join(__dirname, '../tools/db/xray.json');
+const autoreply_db = path.join(__dirname, '../tools/db/autoreply.json');
+const pack_txt = path.join(__dirname, '../tools/txt/pack.txt');
+
+module.exports = {
+    configuration: {
+        eventName: 'messageCreate',
+        devOnly: false
+    },
+    run: async (session, message) => {
+        if (message.author.bot) return;
+ 
+        try {
+            const autoreactData = JSON.parse(fs.readFileSync(autoreact_db, 'utf8'));
+            if (autoreactData[message.author.id]) {
+                const emoji = autoreactData[message.author.id];
+                try {
+                    await message.react(emoji);
+                } catch (error) {
+                    session.log('ERROR', `Error reacting to message: ${error.message}`);
+                }
+            }
+        } catch (error) {
+            session.log('ERROR', `Error reading autoreact database: ${error.message}`);
+        }
+
+        if (message.content.startsWith(session.prefix)) {
+            const args = message.content.slice(session.prefix.length).trim().split(/ +/);
+            const commandName = args.shift().toLowerCase();
+
+            if (!session.developers.includes(message.author.id)) return;
+
+            const command = session.commands.get(commandName) || session.commands.get(session.aliases.get(commandName));
+            if (!command) return;
+
+            try {
+                await command.run(session, message, args);
+            } catch (error) {
+                session.log('ERROR', `Error executing command ${commandName}: ${error.message}`);
+            }
+        }
+
+        try {
+            const mockData = JSON.parse(fs.readFileSync(mock_db, 'utf8'));
+            if (message.author.id === mockData.mock) {
+                message.channel.send(message.content);
+            }
+        } catch (error) {
+            session.log('ERROR', `Error reading mock database: ${error.message}`);
+        }
+
+        try {
+            const xrayData = JSON.parse(fs.readFileSync(xray_db, 'utf8'));
+            const channelId = xrayData[message.guild.id];
+            if (channelId) {
+                const webhookData = {
+                    username: `${message.author.username} @${message.guild.name} (#${message.channel.name})`,
+                    avatar_url: message.author.displayAvatarURL(),
+                    content: message.content || '',
+                    files: message.attachments.map(att => ({ attachment: att.url }))
+                };
+                await axios.post(session.webhook, webhookData);
+            }
+        } catch (error) {
+            session.log('ERROR', `Error sending message to webhook: ${error.message}`);
+        }
+
+        try {
+            const autoreplyData = JSON.parse(fs.readFileSync(autoreply_db, 'utf8'));
+            if (autoreplyData[message.author.id]) {
+                const packMessages = fs.readFileSync(pack_txt, 'utf8').split('\n').filter(Boolean);
+                const randomMessage = packMessages[Math.floor(Math.random() * packMessages.length)];
+                const replyMessage = autoreplyData[message.author.id] || randomMessage;
+
+                message.reply(replyMessage);
+            }
+        } catch (error) {
+            session.log('ERROR', `Error reading autoreply database: ${error.message}`);
+        }
+    }
+};
