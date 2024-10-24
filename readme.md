@@ -36,3 +36,10 @@ A cutting-edge, open-source self-bot built with Discord.js, offering unique feat
    - The self-bot will now be active.
 
 Enjoy your next-level Discord experience with this powerful self-bot!
+
+### Websites/Hyperlinks
+
+- https://lone.rocks/commands 
+- https://lone.rocks/policy
+- https://lone.rocks/download
+- https://lone.rocks/discord
