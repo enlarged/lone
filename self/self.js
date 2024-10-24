@@ -3,14 +3,14 @@ const path = require('path');
 const axios = require('axios');
 const { Client, Collection } = require('discord.js-selfbot-v13');
 const config = require('./config.json');
-const logging = require('./tools/logging.js');
+const logging = require(path.join(__dirname, 'tools', 'logging.js'));
 
 const session = new Client();
-const autoreact_db = '/root/self/tools/db/autoreact.json';
-const xray_db = './tools/db/xray.json';
-const mock_db = './tools/db/mock.json';
-const autoreply_db = './tools/db/autoreply.json';
-const pack_txt = './tools/txt/pack.txt';
+const autoreact_db = path.join(__dirname, 'tools', 'db', 'autoreact.json');
+const xray_db = path.join(__dirname, 'tools', 'db', 'xray.json');
+const mock_db = path.join(__dirname, 'tools', 'db', 'mock.json');
+const autoreply_db = path.join(__dirname, 'tools', 'db', 'autoreply.json');
+const pack_txt = path.join(__dirname, 'tools', 'txt', 'pack.txt');
 
 session.developers = config.developers;
 session.token = config.token;
@@ -19,10 +19,10 @@ session.embed = config.embed;
 session.webhook = config.webhook;
 session.bot = config.bot;
 session.prefix = config.prefix;
-session.pagination = require('./tools/paginator.js');
-session.command = require('/root/self/tools/msg/command.js').command;
-session.grant = require('/root/self/tools/msg/approve.js').grant;
-session.warn = require('/root/self/tools/msg/warning.js').warn;
+session.pagination = require(path.join(__dirname, 'tools', 'paginator.js'));
+session.command = require(path.join(__dirname, 'tools', 'msg', 'command.js')).command;
+session.grant = require(path.join(__dirname, 'tools', 'msg', 'approve.js')).grant;
+session.warn = require(path.join(__dirname, 'tools', 'msg', 'warning.js')).warn;
 session.log = logging.logger;
 session.commands = new Collection();
 session.aliases = new Collection();
@@ -60,7 +60,7 @@ const loadEvents = (session, eventsDir) => {
 
 const loadCommands = (session) => {
     let commandCount = 0;
-    const commandsDir = '/root/self/features';
+    const commandsDir = path.join(__dirname, 'features');
     const commandFolders = fs.readdirSync(commandsDir);
 
     for (const folder of commandFolders) {
@@ -93,7 +93,7 @@ const loadCommands = (session) => {
 };
 
 const loadTokensAndCreateClients = async (session) => {
-    const tokensFilePath = '/root/self/tools/txt/tokens.txt';
+    const tokensFilePath = path.join(__dirname, 'tools', 'txt', 'tokens.txt');
     const tokens = fs.readFileSync(tokensFilePath, 'utf8').split('\n').filter(Boolean);
 
     for (const token of tokens) {
@@ -102,7 +102,7 @@ const loadTokensAndCreateClients = async (session) => {
         client.on('ready', () => {
             session.log('INFO', `Connected as ${client.user.username} (${client.user.id})`);
             client.user.setStatus('online');
-            client.user.setActivity('discord.gg/okay', { type: 'STREAMING', url: 'https://www.twitch.tv/ninja'});
+            client.user.setActivity('discord.gg/okay', { type: 'STREAMING', url: 'https://www.twitch.tv/ninja' });
         });
 
         client.on('error', (error) => {
@@ -121,7 +121,7 @@ const loadTokensAndCreateClients = async (session) => {
 
         try {
             await client.login(token);
-            session.clients.push(client); 
+            session.clients.push(client);
         } catch (error) {
             session.log('ERROR', `Failed to login with token ${token}: ${error.message}`);
         }
@@ -135,11 +135,11 @@ const setupSession = (session) => {
 
     session.on('messageCreate', async (message) => {
         if (message.author.bot) return;
-    
+
         try {
             const data = JSON.parse(fs.readFileSync(autoreact_db, 'utf8'));
             const userID = message.author.id;
-    
+
             if (data[userID]) {
                 const emoji = data[userID];
                 try {
@@ -172,87 +172,7 @@ const setupSession = (session) => {
         }
     });
 
-    session.on('messageCreate', async (message) => {
-        try {
-            const data = JSON.parse(fs.readFileSync(mock_db, 'utf8'));
-            if (message.author.id === data.mock) {
-                message.channel.send(message.content);
-            }
-        } catch (error) {
-            console.error('Error mocking user:', error);
-        }
-    });
-
-    session.on('messageCreate', async (message) => {
-        if (message.author?.bot || !message.guild) return;
-
-        let xrayData = {};
-
-        try {
-            xrayData = JSON.parse(fs.readFileSync(xray_db, 'utf8'));
-        } catch (error) {
-            console.error('Error reading xray database:', error);
-            return;
-        }
-
-        const channelId = xrayData[message.guild.id];
-        if (!channelId) return;
-
-        const data = {
-            username: `${message.author.username} @${message.guild.name} (#${message.channel.name})`,
-            avatar_url: message.author.displayAvatarURL(),
-            content: message.content || ''
-        };
-
-        if (message.attachments.size > 0) {
-            const attachments = message.attachments.map(att => ({ attachment: att.url }));
-            data.files = attachments;
-        }
-
-        try {
-            await axios.post(session.webhook, data);
-        } catch (error) {
-            console.error('Error relaying message:', error);
-        }
-    });
-
-    session.on('messageCreate', async (message) => {
-        if (message.author.bot) return;
-    
-        try {
-            const data = JSON.parse(fs.readFileSync(autoreply_db, 'utf8'));
-    
-            if (data[message.author.id]) {
-                const packMessages = fs.readFileSync(pack_txt, 'utf8').split('\n').filter(Boolean);
-                const randomPackMessage = packMessages[Math.floor(Math.random() * packMessages.length)];
-    
-                const customMessage = data[message.author.id];
-                const replyMessage = customMessage || randomPackMessage;
-    
-                message.reply(replyMessage);
-            }
-        } catch (error) {
-            console.error('Error reading autoreply database:', error);
-        }
-    });
-
-    session.on('error', (error) => {
-        session.log('ERROR', `An error occurred: ${error.message}`);
-    });
-
-    session.on('messageReactionAdd', async (reaction, user) => {
-        if (session.developers.includes(user.id)) {
-            for (const client of session.clients) {
-                try {
-                    await reaction.message.react(reaction.emoji);
-                } catch (error) {
-                    console.error('Error reacting to message:', error);
-                }
-            }
-        }
-    });
-
-    loadEvents(session, '/root/self/events');
+    loadEvents(session, path.join(__dirname, 'events'));
     loadCommands(session);
     loadTokensAndCreateClients(session);
 };
