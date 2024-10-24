@@ -102,7 +102,7 @@ const loadTokensAndCreateClients = async (session) => {
         client.on('ready', () => {
             session.log('INFO', `Connected as ${client.user.username} (${client.user.id})`);
             client.user.setStatus('online');
-            client.user.setActivity('discord.gg/okay', { type: 'STREAMING', url: 'https://www.twitch.tv/ninja' });
+            client.user.setActivity('', { type: 'STREAMING', url: 'https://www.twitch.tv/ninja' });
         });
 
         client.on('error', (error) => {
