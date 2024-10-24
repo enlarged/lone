@@ -16,7 +16,7 @@ module.exports = {
                 return client.user.setPresence({
                     status: 'online',
                     activities: [{
-                        name: 'discord.gg/okay',
+                        name: '',
                         type: 'STREAMING',
                         url: 'https://www.twitch.tv/ninja'
                     }]
